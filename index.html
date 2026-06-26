@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1080, height=1920">
+  <title>Claude Code — 5 分鐘省 NT$99,950</title>
+  <style>
+    @font-face {
+      font-family: 'Noto Sans TC';
+      src: url('assets/fonts/NotoSansTC-VF.ttf') format('truetype');
+      font-weight: 100 900;
+      font-style: normal;
+      font-display: block;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 1080px; height: 1920px; overflow: hidden;
+      background: #000;
+      font-family: 'Noto Sans TC', system-ui, sans-serif;
+    }
+    #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; }
+
+    /* ══ Liquid Glass panel ══
+       Semi-transparent: navy tint + backdrop-filter lets video show through,
+       specular highlights on edges fake the iOS-26 refraction look.         */
+    .glass-panel {
+      position: absolute; border-radius: 34px; overflow: hidden;
+      background: linear-gradient(
+        148deg,
+        rgba(10,37,64,0.52) 0%,
+        rgba(10,37,64,0.28) 38%,
+        rgba(10,37,64,0.22) 62%,
+        rgba(10,37,64,0.40) 100%
+      );
+      backdrop-filter: blur(26px) saturate(1.60) brightness(1.08);
+      -webkit-backdrop-filter: blur(26px) saturate(1.60) brightness(1.08);
+      border: 1px solid rgba(245,247,250,0.26);
+      box-shadow:
+        inset 0 1.5px 0 rgba(255,255,255,0.52),
+        inset 0 -1px 0 rgba(255,255,255,0.07),
+        0 20px 72px rgba(0,0,0,0.50),
+        0 0 0 0.5px rgba(255,255,255,0.05),
+        0 0 0 1.5px rgba(201,162,39,0.18);
+    }
+    .glass-panel::before {
+      content: '';
+      position: absolute; inset: 1px; border-radius: inherit; pointer-events: none;
+      background: linear-gradient(
+        120deg,
+        rgba(255,255,255,0.36),
+        transparent 24%,
+        transparent 70%,
+        rgba(255,255,255,0.13)
+      );
+      opacity: 0.32; mix-blend-mode: screen;
+    }
+
+    /* ══ Gold glow bursts (screen-blend over everything) ══ */
+    .glow-burst {
+      position: absolute; border-radius: 50%;
+      pointer-events: none; z-index: 8;
+      mix-blend-mode: screen; opacity: 0;
+    }
+    #gold-glow1 {
+      width: 680px; height: 560px;
+      left: 200px; top: 390px;
+      background: radial-gradient(ellipse, rgba(230,197,92,0.68) 0%, rgba(201,162,39,0.32) 36%, transparent 70%);
+      filter: blur(34px);
+    }
+    #gold-glow2 {
+      width: 1000px; height: 860px;
+      left: 40px; top: 280px;
+      background: radial-gradient(ellipse, rgba(255,232,105,0.82) 0%, rgba(230,197,92,0.52) 20%, rgba(201,162,39,0.20) 50%, transparent 72%);
+      filter: blur(26px);
+    }
+
+    /* ══ Film grain (deterministic CSS, no PNG) ══ */
+    .grain {
+      position: absolute; inset: 0; z-index: 14; pointer-events: none; opacity: 0.038;
+      background-image:
+        radial-gradient(circle, rgba(255,255,255,1) 1px, transparent 1px),
+        radial-gradient(circle, rgba(255,255,255,1) 1px, transparent 1px),
+        radial-gradient(circle, rgba(255,255,255,1) 1px, transparent 1px);
+      background-size: 3px 3px, 5px 5px, 7px 7px;
+      background-position: 0 0, 1px 2px, 2px 1px;
+    }
+  </style>
+</head>
+<body>
+  <div data-hf-id="hf-ue2h" id="root" data-composition-id="claude-code-pip" data-width="1080" data-height="1920" data-start="0" data-duration="6.04" data-root="true">
+
+    <!-- ══ LAYER 0 · Full-screen video background ══
+         object-fit:cover → person fills the entire 1080×1920 canvas.
+         data-has-audio="true" → framework mixes audio into render output. -->
+    <video data-hf-id="hf-sr95" id="bg-video" src="assets/my-footage.mp4" data-start="0" data-duration="6.04" data-track-index="0" data-has-audio="true" style="position:absolute;top:0;left:0;width:1080px;height:1920px;
+                  object-fit:cover;z-index:0;display:block;"></video>
+
+    <!-- ══ LAYER 1 · Top scrim — darkens upper half so glass+text pop ══ -->
+    <div data-hf-id="hf-aeun" id="top-scrim" class="clip" data-start="0" data-duration="6.04" data-track-index="4" style="position:absolute;inset:0;z-index:1;pointer-events:none;
+                background:linear-gradient(180deg,
+                  rgba(4,14,28,0.62) 0%,
+                  rgba(4,14,28,0.38) 30%,
+                  rgba(4,14,28,0.10) 52%,
+                  transparent 62%);"></div>
+
+    <!-- ══ LAYER 2 · Liquid Glass card (12 %–44 % of height = 230–845 px) ══
+         backdrop-filter blurs the video behind → liquid-glass refraction look.
+         Contains NO children — card-content is a sibling at the same coords.  -->
+    <div data-hf-id="hf-8av8" id="glass-card" class="clip glass-panel" data-start="0" data-duration="6.04" data-track-index="0" style="position:absolute;top:230px;left:64px;width:952px;height:620px;
+                z-index:2;opacity:0;"></div>
+
+    <!-- ══ Gold glow bursts (sit behind card-content, screen-blend above all) ══ -->
+    <div data-hf-id="hf-gtpx" id="gold-glow1" class="glow-burst"></div>
+    
+
+    <!-- ══ LAYER 3 · Header — Claude logo + title, floats in card top area ══ -->
+    <div data-hf-id="hf-zq89" id="header" class="clip" data-start="0" data-duration="6.04" data-track-index="2" style="position:absolute;top:82px;left:0;right:0;
+                display:flex;flex-direction:column;align-items:center;gap:12px;
+                z-index:6;pointer-events:none;opacity:0;">
+      <img data-hf-id="hf-yzlu" src="assets/claude-logo.png" alt="Claude" style="height:108px;width:auto;object-fit:contain;display:block;
+                  filter:drop-shadow(0 0 28px rgba(201,162,39,0.45));">
+      <div data-hf-id="hf-uxbk" style="font-size:54px;font-weight:700;letter-spacing:3px;
+                  background:linear-gradient(180deg,#F5F7FA 0%,#8895A7 50%,#F5F7FA 90%);
+                  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+                  background-clip:text;
+                  filter:drop-shadow(0 0 22px rgba(201,162,39,0.30));">
+        Claude Code
+      </div>
+    </div>
+
+    <!-- ══ LAYER 4 · Card content — exactly overlays #glass-card ══ -->
+    <div data-hf-id="hf-sje8" id="card-content" class="clip" data-start="2.14" data-duration="3.93" data-track-index="2" style="position: absolute; top: 230px; left: 64px; width: 952px; height: 620px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; z-index: 5; pointer-events: none; opacity: 1; background-image: none">
+
+      <!-- ── Timer pill ── -->
+      <div data-hf-id="hf-p9ej" id="timer-pill" style="display: flex; align-items: center; gap: 10px; padding: 13px 36px; border-radius: 999px; background: linear-gradient(130deg,rgba(245,247,250,0.22),rgba(245,247,250,0.07)); border: 1px solid rgba(245,247,250,0.30); box-shadow: inset 0 1px 0 rgba(255,255,255,0.40); font-size: 31px; font-weight: 700; color: #F5F7FA; letter-spacing: 2px; text-shadow: 0 2px 14px rgba(0,0,0,0.55); opacity: 0">
+        ⏱ 5 分鐘
+      </div>
+
+      <!-- ── Price section (fixed height so blocks can be absolutely centred) ── -->
+      <div data-hf-id="hf-ip7a" id="price-section" style="position:relative;width:100%;height:308px;flex-shrink:0;">
+
+        <!-- Block 1: 價值  NT$100,000 -->
+        <div data-hf-id="hf-kg3a" id="price-block1" style="position:absolute;inset:0;display:flex;flex-direction:column;
+                    align-items:center;justify-content:center;gap:10px;opacity:0;">
+          <span data-hf-id="hf-2uiu" style="font-size:23px;font-weight:500;color:#8895A7;
+                       text-transform:uppercase;letter-spacing:5px;">
+            價值
+          </span>
+          <div data-hf-id="hf-7alt" style="position:relative;display:inline-block;">
+            <span data-hf-id="hf-330d" id="price-100k" style="display:block;font-size:104px;font-weight:900;
+                         letter-spacing:-2px;line-height:1;
+                         font-variant-numeric:tabular-nums;
+                         background:linear-gradient(180deg,#E6C55C 0%,#C9A227 40%,#F0D68A 64%,#C9A227 100%);
+                         -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+                         background-clip:text;
+                         filter:drop-shadow(0 0 22px rgba(201,162,39,0.68))
+                                drop-shadow(0 0 52px rgba(230,197,92,0.38));">
+              NT$100,000
+            </span>
+            <!-- Strikethrough — transform owned entirely by GSAP -->
+            <div data-hf-id="hf-6nm1" id="strike-line" style="position:absolute;left:-6px;right:-6px;height:9px;
+                        background:linear-gradient(90deg,transparent,rgba(238,54,54,0.94) 8%,#EE3636 50%,rgba(238,54,54,0.94) 92%,transparent);
+                        border-radius:5px;
+                        box-shadow:0 0 18px rgba(238,54,54,0.80);"></div>
+          </div>
+        </div>
+
+        <!-- Block 2: 只花了  NT$50 -->
+        <div data-hf-id="hf-y6cz" id="price-block2" style="position:absolute;inset:0;display:flex;flex-direction:column;
+                    align-items:center;justify-content:center;gap:7px;opacity:0;">
+          <span data-hf-id="hf-y8l7" style="font-size:28px;font-weight:700;color:#E6C55C;
+                       letter-spacing:5px;
+                       text-shadow:0 0 24px rgba(230,197,92,0.72);">
+            只花了
+          </span>
+          <span data-hf-id="hf-5fbn" id="price-50" style="font-size:192px;font-weight:900;letter-spacing:-5px;line-height:0.87;
+                       font-variant-numeric:tabular-nums;
+                       background:linear-gradient(180deg,#FFF5C0 0%,#E6C55C 20%,#C9A227 50%,#F0D68A 72%,#C9A227 100%);
+                       -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+                       background-clip:text;
+                       filter:drop-shadow(0 0 42px rgba(201,162,39,1.00))
+                              drop-shadow(0 0 85px rgba(230,197,92,0.70))
+                              drop-shadow(0 0 140px rgba(230,197,92,0.35));">
+            NT$50
+          </span>
+        </div>
+
+      </div><!-- /price-section -->
+    </div><!-- /card-content -->
+
+    <!-- ══ LAYER 5 · Vignette (subtle edge darkening) ══ -->
+    <div data-hf-id="hf-i2sz" id="vignette" class="clip" data-start="0" data-duration="6.04" data-track-index="5" style="position:absolute;inset:0;z-index:9;pointer-events:none;
+                background:radial-gradient(ellipse 85% 65% at 50% 50%,
+                  transparent 38%, rgba(4,14,28,0.45) 100%);"></div>
+
+    <!-- ══ Grain ══ -->
+    <div data-hf-id="hf-h60x" class="grain"></div>
+
+    <!-- ══ Duration anchor (Law #11) ══ -->
+    <div data-hf-id="hf-7i9s" id="duration-anchor" class="clip" data-start="0" data-duration="6.04" data-track-index="6" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;"></div>
+  </div><!-- /root -->
+
+  <script>
+    var DURATION = 6.04;
+
+    /* ════════════════════════════════════════════════════════════════
+       GSAP TIMELINE
+       Video plays independently — GSAP owns only the overlay elements.
+    ════════════════════════════════════════════════════════════════ */
+    window.__timelines = window.__timelines || {};
+    var tl = gsap.timeline({ paused: true });
+
+    tl.set("#card-content", { x: 0, y: 0, data: "hf-hold" }, 0);
+
+    tl.set("#header", { y: -24, x: 0, data: "hf-hold" }, 0);
+
+    tl.set("#glass-card", { y: 60, x: 0, data: "hf-hold" }, 0);
+
+    tl.set("#gold-glow2", { x: 0, y: 0, data: "hf-hold" }, 0);
+
+    tl.set("#price-block2", { y: -50, data: "hf-hold" }, 0);
+
+    tl.set("#strike-line", { yPercent: 0, y: -100, data: "hf-hold" }, 0);
+
+    tl.set("#gold-glow1", { x: 0, y: -181, data: "hf-hold" }, 0);
+
+    tl.set("#card-content-split", {
+      opacity: 1,
+      x: 0
+    }, 4.436);
+
+    /* ── Initial hidden states (GSAP owns all transforms) ── */
+    gsap.set("#header",       { opacity: 0, y: -24 });
+    gsap.set("#glass-card",   { opacity: 0, y: 60, scale: 0.96 });
+    gsap.set("#card-content", { opacity: 0 });
+    gsap.set("#price-block1", { opacity: 0, scale: 0.52, y: 18 });
+    gsap.set("#price-block2", { opacity: 0, scale: 0.26 });
+    gsap.set("#strike-line",  { scaleX: 0, yPercent: -50 });
+    gsap.set("#gold-glow1",   { opacity: 0, scale: 0.82 });
+    gsap.set("#gold-glow2",   { opacity: 0, scale: 0.48 });
+
+    /* ── Beat 1 · NT$100,000 punch (1.70s) ── */
+    tl.to("#price-block1",
+      { opacity: 1, scale: 1, y: 0, duration: 0.33, ease: "back.out(2.8)" }, 1.70);
+    tl.to("#gold-glow1", {
+      keyframes: { "0%": { opacity: 1, scale: 1, x: 0, y: -181 }, "100%": { opacity: 0, scale: 1.7, x: 0, y: -171 }, easeEach: "power2.in" },
+      duration: 0.56,
+      ease: "none"
+    }, 1.88);
+
+    /* ── Beat 2 · NT$50 reveal — THE HIGH POINT (3.60s) ── */
+    /* Red strikethrough slashes across NT$100,000 */
+    tl.to("#strike-line",
+      {
+        keyframes: { "0%": {
+          scaleX: 1,
+          yPercent: 0,
+          transformOrigin: "left center",
+          y: -100
+        }, "100%": { scaleX: 1, yPercent: -50, y: -140 }, easeEach: "power3.out" },
+        duration: 0.20,
+        ease: "none"
+      }, 3.60);
+    /* NT$100,000 dims + retreats */
+    tl.to("#price-block1",
+      { opacity: 0.26, scale: 0.80, y: -48, duration: 0.38, ease: "power2.in" }, 3.60);
+    /* NT$50 erupts with elastic overshoot */
+    tl.to("#price-block2",
+      {
+        keyframes: {
+          "38.3%": { opacity: 0.972, scale: 0, y: -50 },
+
+          "100%": {
+            opacity: 1,
+            scale: 1,
+            y: -50
+          },
+
+          easeEach: "power2.inOut"
+        },
+
+        duration: 0.7
+      }, 3.76);
+    tl.to("#gold-glow2", {
+      keyframes: {
+        "0%": { opacity: 1, scale: 1, x: 0, y: 0 },
+        "6.1%": { x: -22, y: 0, opacity: 1, scale: 1 },
+
+        "17.5%": {
+          opacity: 0.999,
+          scale: 1.001,
+          y: 0,
+          x: -21.3783
+        },
+
+        "34.7%": { x: 0, y: -146 },
+        "80.7%": { x: -22, y: -253 },
+
+        "100%": {
+          opacity: 0,
+          scale: 1.86,
+          x: 0,
+          y: 0
+        },
+
+        easeEach: "power2.in"
+      },
+      duration: 1.306,
+      ease: "none"
+    }, 3.92);
+
+    /* ── Beat 3 · Glass card collapses at 5.0s (video keeps rolling) ── */
+    tl.to(["#glass-card", "#card-content", "#header"],
+      { opacity: 0, duration: 0.62, ease: "custom(M0,0 C0.45,0.05 0.92,0.97 1,1)" }, 5.00);
+
+    /* ── Law #11 — timeline must fill its slot ── */
+    tl.to({}, { duration: DURATION }, 0);
+
+    tl.to("#glass-card", { opacity: 1, duration: 0.5, ease: "back.out(1.4)" }, 0.277);
+
+    tl.to("#glass-card", { keyframes: {
+      "0%": { y: 60, x: 0 },
+      "97.3%": { x: 0, y: -155 },
+      easeEach: "back.out(1.4)"
+    }, duration: 0.5, ease: "none" }, 0.277);
+
+    tl.to("#glass-card", { scale: 1, duration: 0.5, ease: "back.out(1.4)" }, 0.277);
+
+    tl.to("#header", { opacity: 1, duration: 0.52, ease: "power3.out" }, 0.1);
+
+    tl.to("#header", { keyframes: { "0%": { y: -24, x: 0 }, "100%": { y: 95, x: 0 }, easeEach: "power3.out" }, duration: 0.52, ease: "none" }, 0.1);
+
+    tl.to("#card-content", { keyframes: { "0%": { opacity: 1 }, "100%": { opacity: 1 } }, duration: 0.478, ease: "power2.out" }, 2.923);
+
+    tl.to("#card-content", { keyframes: { "100%": { height: 720 } }, duration: 0.478, ease: "power2.out" }, 2.923);
+
+    tl.set("#price-100k", { x: 0, y: -104 }, 0);
+
+    tl.to("#card-content", { keyframes: { "0%": { opacity: 1 }, "26%": { opacity: 1 } }, duration: 0.05 }, 4.707);
+
+    tl.to("#card-content", { keyframes: { "26%": { height: 720 } }, duration: 1.834 }, 2.923);
+
+    tl.to("#card-content", { keyframes: {
+      "0%": { x: 0, y: 0 },
+      "25.88%": { x: 0, y: 0 },
+      "57.7%": { x: 0, y: -100 },
+      easeEach: "custom(M0,0 C0.79,0.1 1,1 1,1)"
+    }, duration: 1.839 }, 2.923);
+
+    tl.to("#gold-glow1", { opacity: 0.78, duration: 0.18, ease: "power3.out" }, 1.7);
+
+    tl.to("#gold-glow1", { scale: 1.05, duration: 0.18, ease: "power3.out" }, 1.7);
+
+    tl.to("#gold-glow2", { opacity: 1, duration: 0.158, ease: "none" }, 3.762);
+
+    tl.to("#gold-glow2", { scale: 1, duration: 0.158, ease: "none" }, 3.762);
+
+    window.__timelines["claude-code-pip"] = tl;
+  </script>
+</body>
+</html>
